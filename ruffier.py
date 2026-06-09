@@ -51,6 +51,8 @@ def neud_level(age):
 
     result = 21 - norm_age * 1.5  # Вычитаем 1.5 столько раз, сколько нужно по возрасту
     return result
+
+
     
 def ruffier_result(r_index, level):
 
