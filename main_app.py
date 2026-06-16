@@ -12,6 +12,8 @@ import sits
 import runner
 from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
+from kivy.uix.popup import Popup
+from kivy.base import stopTouchApp
 
 bg_color = get_color_from_hex('FFB273')
 Window.clearcolor = bg_color
@@ -57,9 +59,11 @@ class InstrScr(Screen):
        self.button.on_press = self.press
 
     def press(self):
+        error = Popup(title='Ошибка ввода', content=Label(text='Возраст должен быть от 7 лет'), size_hint = (0.5, 0.5))
         self.age = chech_int(self.age_t.text)
-        if self.age == False and self.age < 7:
+        if self.age != False and self.age < 7:
             self.age_t.text = 'Введено не коректное число'
+            error.open()
         else:
             self.manager.transition.direction = 'left'
             self.manager.current = 'First'
@@ -72,7 +76,7 @@ class FirstTest(Screen):
     def __init__(self, **kwargs):
        super().__init__(**kwargs)
        lay = BoxLayout(orientation='vertical', padding=15, spacing=15)
-       self.timer = seconds.Seconds(5, markup = True)
+       self.timer = seconds.Seconds(15, markup = True)
 
        self.text = Label(text='[color=#A64B00]'+instructions.txt_test1+ '[/color]', halign = 'center', markup = True)
 
@@ -112,7 +116,7 @@ class FirstTest(Screen):
     def press(self, *args):
         global resulta1
         resulta1 = chech_int(self.result1.text)
-        if resulta1 == False:
+        if resulta1 == False or resulta1 > 100 or resulta1 < 0: 
             self.result1.text = 'Введено не коректное число'
         else:
             self.manager.transition.direction = 'left'
@@ -197,9 +201,9 @@ class ThirdTest(Screen):
         global resulta2, resulta3
         resulta2 = chech_int(self.result2.text)
         resulta3 = chech_int(self.result3.text)
-        if resulta2 == False:
+        if resulta2 == False or resulta2 > 100 or resulta2 < 0:
             self.result2.text = 'Введено не коректное число'
-        elif resulta3 == False:
+        elif resulta3 == False or resulta3 > 100 or resulta3 < 0:
             self.result3.text = 'Введено не коректное число'
         else:
             self.manager.transition.direction = 'left'
@@ -241,18 +245,25 @@ class ResultScr(Screen):
 
        self.txt_index = Label(halign = 'center',markup = True)
        self.txt_workheart = Label(halign = 'center', markup = True)
+       self.button = Button(text='Выход', size_hint=(0.4,None), height='50sp', pos_hint={'center_x': 0.5})
+       
 
        lay.add_widget(self.txt_index)
        lay.add_widget(self.txt_workheart)
+       lay.add_widget(self.button)
        self.add_widget(lay)
        
        self.on_enter = self.before
+       self.button.on_press = self.stop
 
     def before(self):
         global resulta1, resulta2, resulta3
         resultat = ruffier.ruffier_index(resulta1, resulta2, resulta3)
         self.txt_index.text = '[color=#A64B00]'+"Ваш индекс Руфье: " + str(resultat)+ '[/color]'
         self.txt_workheart.text = '[color=#A64B00]'+"Работоспособность сердца: " + ruffier.txt_res[ruffier.ruffier_result(ruffier.ruffier_index(resulta1, resulta2, resulta3), ruffier.neud_level(age))]+ '[/color]'
+
+    def stop(self):
+        stopTouchApp()
 
 class Test (App):
     def build(self):
